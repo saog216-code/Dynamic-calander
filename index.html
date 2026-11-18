@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daymate Calendar</title>
+<style>
+:root{color-scheme:light;--bg:#f5f6fa;--panel:#fff;--ink:#172033;--muted:#778096;--line:#e7eaf1;--blue:#2864e8;--blue-soft:#eaf0ff;--shadow:0 12px 35px #17203312}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.app{max-width:1400px;margin:auto;padding:28px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;background:var(--blue);color:white;display:grid;place-items:center;font-size:22px}
+h1{font-size:23px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:white;color:var(--ink);border-radius:11px;padding:10px 14px;font-weight:600}.btn.primary{background:var(--blue);border-color:var(--blue);color:white}.btn:hover{filter:brightness(.97)}
+.layout{display:grid;grid-template-columns:265px minmax(0,1fr);gap:20px}.sidebar,.calendar{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.sidebar{padding:19px;height:max-content}.calendar{padding:22px;min-width:0}
+.side-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:20px 0 10px}
+.mini-head{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:12px}.mini-grid,.weekdays,.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center}
+.mini-grid{gap:4px}.mini-grid span{padding:7px 0;font-size:12px;color:var(--muted)}.mini-grid button{border:0;background:transparent;border-radius:8px;padding:7px 0;font-size:12px}.mini-grid button.today{background:var(--blue);color:white}.mini-grid button.selected{outline:2px solid var(--blue)}
+.filter{display:flex;align-items:center;gap:9px;margin:12px 0;font-size:14px;color:#46516a}.dot{width:9px;height:9px;border-radius:50%;display:inline-block}.blue{background:#3975ed}.orange{background:#f59b38}.green{background:#25a879}.purple{background:#9770df}
+.tip{background:#f3f6ff;border-radius:12px;padding:12px;color:#53617e;font-size:12px;line-height:1.5;margin-top:22px}
+.cal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}.month-title{font-size:24px;font-weight:750}.nav{display:flex;align-items:center;gap:8px}.icon-btn{width:36px;height:36px;border:1px solid var(--line);background:white;border-radius:10px;font-size:17px}
+.view-switch{display:flex;background:#f1f3f8;padding:4px;border-radius:10px}.view-switch button{border:0;background:transparent;padding:7px 12px;border-radius:7px;color:var(--muted);font-size:13px}.view-switch button.active{background:white;color:var(--ink);box-shadow:0 1px 4px #0001}
+.weekdays{border-bottom:1px solid var(--line);padding-bottom:10px;color:var(--muted);font-size:12px;font-weight:700}.days{grid-auto-rows:minmax(112px,1fr)}
+.day{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 7px;text-align:left;min-width:0;position:relative}.day:nth-child(7n){border-right:0}.day.outside{background:#fafbfc;color:#b7bdc9}.daynum{width:27px;height:27px;display:grid;place-items:center;border-radius:50%;font-size:13px;margin-bottom:5px}.daynum.today{background:var(--blue);color:white}.event{font-size:11px;line-height:1.3;padding:5px 6px;border-radius:6px;margin:3px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:var(--blue-soft);color:#2455bd;cursor:pointer}.event.orange{background:#fff2e5;color:#a75b0a}.event.green{background:#e6f7f0;color:#137653}.event.purple{background:#f1eaff;color:#6941ae}
+.empty{padding:30px;text-align:center;color:var(--muted)}.list-view{display:grid;gap:10px}.list-day{padding:12px;border:1px solid var(--line);border-radius:12px}.list-day strong{display:block;margin-bottom:8px}.list-event{padding:9px 10px;background:#f6f8fc;border-radius:8px;margin-top:6px;font-size:13px}
+.modal-backdrop{position:fixed;inset:0;background:#10182b66;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal-backdrop.open{display:flex}.modal{background:white;width:min(460px,100%);border-radius:18px;padding:23px;box-shadow:0 20px 70px #0003}.modal h2{margin:0 0 18px}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:13px;font-weight:650;color:#59647a}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;background:white;color:var(--ink)}.field textarea{min-height:70px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.close-row{display:flex;justify-content:space-between;align-items:center}
+@media(max-width:800px){.app{padding:14px}.layout{grid-template-columns:1fr}.sidebar{display:none}.calendar{padding:12px}.days{grid-auto-rows:minmax(86px,1fr)}.day{padding:5px 3px}.event{font-size:10px;padding:4px}.month-title{font-size:20px}.topbar{align-items:flex-start}.actions .btn{padding:9px 10px}}
+@media(max-width:430px){.topbar{flex-direction:column}.days{grid-auto-rows:minmax(76px,1fr)}.daynum{width:23px;height:23px;font-size:11px}.event{font-size:9px}.view-switch button{padding:7px 8px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">▦</div><div><h1>Daymate Calendar</h1><div class="sub">Your schedule, all in one place.</div></div></div>
+    <div class="actions">
+      <button class="btn" id="importBtn">＋ Import .ics</button>
+      <input id="icsFile" type="file" accept=".ics,text/calendar" hidden>
+      <button class="btn primary" id="addBtn">＋ Add assignment</button>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="mini-head"><span id="miniMonth"></span><span><button class="icon-btn" id="miniPrev">‹</button> <button class="icon-btn" id="miniNext">›</button></span></div>
+      <div class="mini-grid" id="miniGrid"></div>
+      <div class="side-title">Calendars</div>
+      <div class="filter"><i class="dot blue"></i> Assignments</div>
+      <div class="filter"><i class="dot orange"></i> Tests & quizzes</div>
+      <div class="filter"><i class="dot green"></i> Personal</div>
+      <div class="filter"><i class="dot purple"></i> Other</div>
+      <div class="tip"><b>Quick tip</b><br>Click any day to add something. Your events are saved in this browser automatically.</div>
+    </aside>
+    <main class="calendar">
+      <div class="cal-head">
+        <div class="nav"><button class="icon-btn" id="prev">‹</button><button class="icon-btn" id="next">›</button><button class="btn" id="todayBtn">Today</button><span class="month-title" id="heading"></span></div>
+        <div class="view-switch"><button class="active" data-view="month">Month</button><button data-view="week">Week</button><button data-view="day">Day</button></div>
+      </div>
+      <div class="weekdays" id="weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+      <div class="days" id="calendarDays"></div>
+    </main>
+  </div>
+</div>
+<div class="modal-backdrop" id="modalBackdrop">
+  <form class="modal" id="eventForm">
+    <div class="close-row"><h2 id="modalTitle">Add to calendar</h2><button type="button" class="icon-btn" id="closeModal">×</button></div>
+    <input type="hidden" id="eventId">
+    <div class="field"><label for="eventTitle">Title</label><input id="eventTitle" required placeholder="e.g. History homework"></div>
+    <div class="field"><label for="eventDate">Date</label><input id="eventDate" type="date" required></div>
+    <div class="field"><label for="eventTime">Time (optional)</label><input id="eventTime" type="time"></div>
+    <div class="field"><label for="eventType">Category</label><select id="eventType"><option value="blue">Assignment</option><option value="orange">Test or quiz</option><option value="green">Personal</option><option value="purple">Other</option></select></div>
+    <div class="field"><label for="eventNotes">Notes (optional)</label><textarea id="eventNotes" placeholder="Add details..."></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" id="deleteBtn" style="display:none;margin-right:auto">Delete</button><button type="button" class="btn" id="cancelBtn">Cancel</button><button class="btn primary" type="submit">Save</button></div>
+  </form>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const today=new Date(); today.setHours(0,0,0,0);
+let cursor=new Date(today.getFullYear(),today.getMonth(),1), selectedDate=iso(today), view='month';
+let events=JSON.parse(localStorage.getItem('daymate-events')||'[]');
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const same=(a,b)=>iso(a)===iso(b);
+const save=()=>localStorage.setItem('daymate-events',JSON.stringify(events));
+const monthName=d=>d.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+function render(){
+ $('heading').textContent=view==='day'?parse(selectedDate).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}):view==='week'?'Week of '+parse(selectedDate).toLocaleDateString(undefined,{month:'short',day:'numeric'}):monthName(cursor);
+ $('weekdays').style.display=view==='day'?'none':'grid';
+ document.querySelectorAll('.view-switch button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+ if(view==='month')renderMonth(); else renderList();
+ renderMini();
+}
+function eventHtml(e){return `<div class="event ${e.type}" data-id="${e.id}" title="${esc(e.title)}">${e.time?e.time+' ':''}${esc(e.title)}</div>`}
+function renderMonth(){
+ const start=new Date(cursor.getFullYear(),cursor.getMonth(),1);start.setDate(start.getDate()-start.getDay());
+ let out='';
+ for(let i=0;i<42;i++){let d=new Date(start);d.setDate(start.getDate()+i);let dayEvents=events.filter(e=>e.date===iso(d)).sort((a,b)=>(a.time||'').localeCompare(b.time||''));out+=`<div class="day ${d.getMonth()!==cursor.getMonth()?'outside':''}" data-date="${iso(d)}"><div class="daynum ${same(d,today)?'today':''}">${d.getDate()}</div>${dayEvents.slice(0,3).map(eventHtml).join('')}${dayEvents.length>3?`<small>+${dayEvents.length-3} more</small>`:''}</div>`}
+ $('calendarDays').className='days';$('calendarDays').innerHTML=out;
+}
+function renderList(){
+ let dates=[];
+ if(view==='day')dates=[parse(selectedDate)];
+ else {let d=parse(selectedDate);d.setDate(d.getDate()-d.getDay());for(let i=0;i<7;i++){let x=new Date(d);x.setDate(d.getDate()+i);dates.push(x)}}
+ $('calendarDays').className='list-view';
+ $('calendarDays').innerHTML=dates.map(d=>{let es=events.filter(e=>e.date===iso(d)).sort((a,b)=>(a.time||'').localeCompare(b.time||''));return `<div class="list-day"><strong>${d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</strong>${es.length?es.map(e=>`<div class="list-event" data-id="${e.id}"><span class="dot ${e.type}"></span> ${e.time?e.time+' · ':''}${esc(e.title)}${e.notes?`<div class="sub">${esc(e.notes)}</div>`:''}</div>`).join(''):'<span class="sub">Nothing scheduled</span>'}</div>`}).join('');
+}
+function renderMini(){
+ $('miniMonth').textContent=monthName(cursor);let first=new Date(cursor.getFullYear(),cursor.getMonth(),1);first.setDate(first.getDate()-first.getDay());let out='';
+ for(let i=0;i<35;i++){let d=new Date(first);d.setDate(first.getDate()+i);out+=`<button class="${same(d,today)?'today':''} ${same(d,parse(selectedDate))?'selected':''}" data-mini="${iso(d)}">${d.getDate()}</button>`}
+ $('miniGrid').innerHTML='<span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>'+out;
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function openModal(date=selectedDate,event=null){
+ $('eventForm').reset();$('eventId').value=event?.id||'';$('eventTitle').value=event?.title||'';$('eventDate').value=event?.date||date;$('eventTime').value=event?.time||'';$('eventType').value=event?.type||'blue';$('eventNotes').value=event?.notes||'';
+ $('modalTitle').textContent=event?'Edit event':'Add to calendar';$('deleteBtn').style.display=event?'block':'none';$('modalBackdrop').classList.add('open');$('eventTitle').focus();
+}
+function closeModal(){$('modalBackdrop').classList.remove('open')}
+$('addBtn').onclick=()=>openModal();$('closeModal').onclick=$('cancelBtn').onclick=closeModal;
+$('eventForm').onsubmit=e=>{e.preventDefault();let id=$('eventId').value;let item={id:id||String(Date.now()),title:$('eventTitle').value.trim(),date:$('eventDate').value,time:$('eventTime').value,type:$('eventType').value,notes:$('eventNotes').value.trim()};if(id)events=events.map(x=>x.id===id?item:x);else events.push(item);selectedDate=item.date;cursor=new Date(parse(item.date).getFullYear(),parse(item.date).getMonth(),1);save();closeModal();render()};
+$('deleteBtn').onclick=()=>{let id=$('eventId').value;if(id&&confirm('Delete this event?')){events=events.filter(e=>e.id!==id);save();closeModal();render()}};
+$('calendarDays').addEventListener('click',e=>{let ev=e.target.closest('[data-id]');if(ev){let item=events.find(x=>x.id===ev.dataset.id);if(item)openModal(item.date,item);return}let day=e.target.closest('[data-date]');if(day){selectedDate=day.dataset.date;let d=parse(selectedDate);cursor=new Date(d.getFullYear(),d.getMonth(),1);openModal(selectedDate)}});
+$('miniGrid').addEventListener('click',e=>{let b=e.target.closest('[data-mini]');if(b){selectedDate=b.dataset.mini;let d=parse(selectedDate);cursor=new Date(d.getFullYear(),d.getMonth(),1);render();if(view!=='month')render()}});
+$('prev').onclick=()=>move(-1);$('next').onclick=()=>move(1);$('miniPrev').onclick=()=>{cursor.setMonth(cursor.getMonth()-1);render()};$('miniNext').onclick=()=>{cursor.setMonth(cursor.getMonth()+1);render()};
+function move(n){if(view==='day'){let d=parse(selectedDate);d.setDate(d.getDate()+n);selectedDate=iso(d)}else if(view==='week'){let d=parse(selectedDate);d.setDate(d.getDate()+7*n);selectedDate=iso(d)}else cursor.setMonth(cursor.getMonth()+n);render()}
+$('todayBtn').onclick=()=>{selectedDate=iso(today);cursor=new Date(today.getFullYear(),today.getMonth(),1);render()};
+document.querySelectorAll('.view-switch button').forEach(b=>b.onclick=()=>{view=b.dataset.view;render()});
+$('importBtn').onclick=()=>$('icsFile').click();
+$('icsFile').onchange=async e=>{let file=e.target.files[0];if(!file)return;try{let text=await file.text();let unfolded=text.replace(/\r?\n[ \t]/g,'');let blocks=unfolded.split('BEGIN:VEVENT').slice(1);let count=0;for(let block of blocks){let get=k=>{let m=block.match(new RegExp('(?:^|\\n)'+k+'(?:;[^:]*)?:(.*)','i'));return m?m[1].trim():''};let raw=get('DTSTART');if(!raw)continue;let dateMatch=raw.match(/(\d{4})(\d{2})(\d{2})/);if(!dateMatch)continue;let date=`${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`;let timeMatch=raw.match(/T(\d{2})(\d{2})/);let title=get('SUMMARY').replace(/\\,/g,',').replace(/\\n/g,' ');events.push({id:String(Date.now()+count),title:title||'Imported event',date,time:timeMatch?`${timeMatch[1]}:${timeMatch[2]}`:'',type:'purple',notes:get('DESCRIPTION').replace(/\\n/g,' ')});count++}save();render();alert(`Imported ${count} event(s).`)}catch(err){alert('Could not read that calendar file. Please try another .ics file.')}e.target.value=''};
+render();
+</script>
+</body>
+</html>
