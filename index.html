@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daymate Calendar</title>
+<title>Dynamic Calendar</title>
 <style>
-:root{color-scheme:light;--bg:#f5f6fa;--panel:#fff;--ink:#172033;--muted:#778096;--line:#e7eaf1;--blue:#2864e8;--blue-soft:#eaf0ff;--shadow:0 12px 35px #17203312}
+:root{color-scheme:light;--bg:#fff;--panel:#fff;--ink:#111;--muted:#666;--line:#dedede;--blue:#111;--blue-soft:#eee;--shadow:0 12px 35px #0000000d;--field:#fff;--soft:#f4f4f4;--outside:#fafafa;--event-ink:#222;--event-bg:#ededed} :root[data-theme="dark"]{color-scheme:dark;--bg:#000;--panel:#000;--ink:#f5f5f5;--muted:#999;--line:#292929;--blue:#fff;--blue-soft:#202020;--shadow:none;--field:#080808;--soft:#151515;--outside:#080808;--event-ink:#eee;--event-bg:#1c1c1c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 button,input,textarea,select{font:inherit}button{cursor:pointer}
 .app{max-width:1400px;margin:auto;padding:28px}
@@ -28,13 +28,33 @@ h1{font-size:23px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px
 .modal-backdrop{position:fixed;inset:0;background:#10182b66;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal-backdrop.open{display:flex}.modal{background:white;width:min(460px,100%);border-radius:18px;padding:23px;box-shadow:0 20px 70px #0003}.modal h2{margin:0 0 18px}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:13px;font-weight:650;color:#59647a}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;background:white;color:var(--ink)}.field textarea{min-height:70px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.close-row{display:flex;justify-content:space-between;align-items:center}
 @media(max-width:800px){.app{padding:14px}.layout{grid-template-columns:1fr}.sidebar{display:none}.calendar{padding:12px}.days{grid-auto-rows:minmax(86px,1fr)}.day{padding:5px 3px}.event{font-size:10px;padding:4px}.month-title{font-size:20px}.topbar{align-items:flex-start}.actions .btn{padding:9px 10px}}
 @media(max-width:430px){.topbar{flex-direction:column}.days{grid-auto-rows:minmax(76px,1fr)}.daynum{width:23px;height:23px;font-size:11px}.event{font-size:9px}.view-switch button{padding:7px 8px}}
+
+/* Monochrome surfaces and category treatments */
+.btn,.icon-btn,.view-switch,.view-switch button.active,.field input,.field textarea,.field select,.modal,.list-event{background:var(--panel);color:var(--ink)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.logo{background:var(--ink);color:var(--bg)}
+.mini-grid button.today,.daynum.today{background:var(--ink);color:var(--bg)}
+.mini-grid button.selected{outline-color:var(--ink)}
+.tip{background:var(--soft);color:var(--muted)}
+.view-switch{background:var(--soft)}
+.view-switch button.active{box-shadow:0 1px 4px #0001}
+.day.outside{background:var(--outside);color:var(--muted)}
+.event,.event.orange,.event.green,.event.purple{background:var(--event-bg);color:var(--event-ink);border-left:2px solid var(--muted)}
+.dot,.dot.blue,.dot.orange,.dot.green,.dot.purple{background:var(--ink)}
+.list-event{background:var(--soft)}
+.modal-backdrop{background:#0009}
+.field label{color:var(--muted)}
+.btn:hover,.icon-btn:hover{background:var(--soft)}
+.theme-btn{min-width:42px}
+
 </style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="logo">▦</div><div><h1>Daymate Calendar</h1><div class="sub">Your schedule, all in one place.</div></div></div>
+    <div class="brand"><div class="logo">▦</div><div><h1>Dynamic Calendar</h1><div class="sub">Your schedule, all in one place.</div></div></div>
     <div class="actions">
+      <button class="btn theme-btn" id="themeBtn" type="button" aria-label="Switch color theme" title="Switch color theme">☾</button>
       <button class="btn" id="importBtn">＋ Import .ics</button>
       <input id="icsFile" type="file" accept=".ics,text/calendar" hidden>
       <button class="btn primary" id="addBtn">＋ Add assignment</button>
@@ -75,6 +95,11 @@ h1{font-size:23px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px
 </div>
 <script>
 const $=id=>document.getElementById(id);
+const themeKey='dynamic-calendar-theme';
+function applyTheme(theme){document.documentElement.dataset.theme=theme;$('themeBtn').textContent=theme==='dark'?'☀':'☾';$('themeBtn').title=theme==='dark'?'Switch to light mode':'Switch to OLED dark mode';$('themeBtn').setAttribute('aria-label',$('themeBtn').title);localStorage.setItem(themeKey,theme)}
+const savedTheme=localStorage.getItem(themeKey);
+applyTheme(savedTheme==='dark'?'dark':'light');
+$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 const today=new Date(); today.setHours(0,0,0,0);
 let cursor=new Date(today.getFullYear(),today.getMonth(),1), selectedDate=iso(today), view='month';
 let events=JSON.parse(localStorage.getItem('daymate-events')||'[]');
