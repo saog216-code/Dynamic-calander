@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dynamic Calendar</title>
 <style>
-:root{color-scheme:light;--bg:#fff;--panel:#fff;--ink:#111;--muted:#666;--line:#dedede;--blue:#111;--blue-soft:#eee;--shadow:0 12px 35px #0000000d;--field:#fff;--soft:#f4f4f4;--outside:#fafafa;--event-ink:#222;--event-bg:#ededed} :root[data-theme="dark"]{color-scheme:dark;--bg:#000;--panel:#000;--ink:#f5f5f5;--muted:#999;--line:#292929;--blue:#fff;--blue-soft:#202020;--shadow:none;--field:#080808;--soft:#151515;--outside:#080808;--event-ink:#eee;--event-bg:#1c1c1c}
+:root,:root[data-theme="dark"]{color-scheme:dark;--bg:#000;--panel:#000;--ink:#f5f5f5;--muted:#a3a3a3;--line:#292929;--blue:#fff;--blue-soft:#202020;--shadow:none;--field:#050505;--soft:#151515;--outside:#080808;--event-ink:#eee;--event-bg:#1c1c1c} :root[data-theme="light"]{color-scheme:light;--bg:#fff;--panel:#fff;--ink:#111;--muted:#666;--line:#dedede;--blue:#111;--blue-soft:#eee;--shadow:0 12px 35px #0000000d;--field:#fff;--soft:#f4f4f4;--outside:#fafafa;--event-ink:#222;--event-bg:#ededed}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 button,input,textarea,select{font:inherit}button{cursor:pointer}
 .app{max-width:1400px;margin:auto;padding:28px}
@@ -95,10 +95,10 @@ h1{font-size:23px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px
 </div>
 <script>
 const $=id=>document.getElementById(id);
-const themeKey='dynamic-calendar-theme';
+const themeKey='dynamic-calendar-theme-v2';
 function applyTheme(theme){document.documentElement.dataset.theme=theme;$('themeBtn').textContent=theme==='dark'?'☀':'☾';$('themeBtn').title=theme==='dark'?'Switch to light mode':'Switch to OLED dark mode';$('themeBtn').setAttribute('aria-label',$('themeBtn').title);localStorage.setItem(themeKey,theme)}
 const savedTheme=localStorage.getItem(themeKey);
-applyTheme(savedTheme==='dark'?'dark':'light');
+applyTheme(savedTheme==='light'?'light':'dark');
 $('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 const today=new Date(); today.setHours(0,0,0,0);
 let cursor=new Date(today.getFullYear(),today.getMonth(),1), selectedDate=iso(today), view='month';
